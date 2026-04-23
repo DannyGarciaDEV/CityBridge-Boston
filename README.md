@@ -72,7 +72,7 @@ This project is a **kiosk-first** web UI with:
 ## Getting started / setup
 
 ```bash
-git clone <YOUR_REPO_URL>
+git clone https://github.com/DannyGarciaDEV/CityBridge-Boston
 cd mcp-boss
 
 python3 -m venv .venv
