@@ -1,0 +1,98 @@
+{
+  "snap": {
+    "en": {
+      "what": "SNAP helps people buy groceries with an EBT card.",
+      "who": "Eligibility depends on income, household size, expenses, and immigration status. Some immigrants qualify; some federal rules exclude certain statuses. You may qualify even if you are not working.",
+      "where": "Apply online at Mass.gov SNAP, by phone, by mail, or at a local DTA office. Bring what you have for ID and income—staff can help if documents are missing.",
+      "trust": "This is general information. DTA decides eligibility."
+    },
+    "es": {
+      "what": "SNAP ayuda a comprar comida con una tarjeta EBT.",
+      "who": "La elegibilidad depende del ingreso, el tamaño del hogar, los gastos y el estado migratorio. Algunas personas inmigrantes califican; otras reglas federales excluyen ciertos estados. Puede calificar aunque no tenga empleo.",
+      "where": "Solicite en línea en Mass.gov (SNAP), por teléfono, por correo o en una oficina local de DTA. Lleve lo que tenga de identificación e ingresos—el personal puede ayudar si faltan documentos.",
+      "trust": "Esto es información general. DTA decide la elegibilidad."
+    },
+    "ht": {
+      "what": "SNAP ede moun achte manje ak yon kat EBT.",
+      "who": "Kalifikasyon depann de revni, gwosè menaj, depans, ak estati imigrasyon. Gen imigran ki kalifye; gen règ federal ki egzliji sèten estati. Ou ka kalifye menm si ou pa travay.",
+      "where": "Apliye sou entènèt Mass.gov SNAP, pa telefòn, pa lèt, oswa nan biwo DTA lokal. Pote sa ou genyen kòm ID ak revni—anplwaye yo ka ede si dokiman manke.",
+      "trust": "Sa a se enfòmasyon jeneral. DTA deside kalifikasyon."
+    },
+    "zh": {
+      "what": "SNAP（粮食券）帮助家庭用 EBT 卡购买食品杂货。",
+      "who": "资格取决于收入、家庭人数、开支和移民身份。部分移民可以申请；联邦规则对某些身份有限制。即使目前没有工作，也可能符合资格。",
+      "where": "可在 Mass.gov 在线申请 SNAP，或通过电话、邮寄、当地 DTA 办公室办理。尽量携带身份证明与收入材料—工作人员会协助缺少文件的情况。",
+      "trust": "这是一般信息。是否合格由 DTA 决定。"
+    },
+    "pt": {
+      "what": "O SNAP ajuda a comprar comida com um cartão EBT.",
+      "who": "A elegibilidade depende de renda, tamanho da família, despesas e status de imigração. Alguns imigrantes qualificam; regras federais excluem certos status. Você pode qualificar mesmo sem emprego.",
+      "where": "Inscreva-se online no Mass.gov (SNAP), por telefone, correio ou em um escritório local da DTA. Leve o que tiver de identificação e renda—funcionários podem ajudar se faltar documentos.",
+      "trust": "Isto é informação geral. A DTA decide a elegibilidade."
+    }
+  },
+  "wic": {
+    "en": {
+      "what": "WIC provides healthy foods, nutrition education, and referrals for pregnant people and young children.",
+      "who": "You must meet income rules and be pregnant, postpartum, breastfeeding, or have a child under 5 with nutrition risk (WIC staff screen you).",
+      "where": "Start at the Boston WIC/Massachusetts WIC clinic finder on Mass.gov or Boston Public Health Commission WIC pages.",
+      "trust": "This is general information. Clinic staff determine eligibility."
+    },
+    "es": {
+      "what": "WIC ofrece alimentos saludables, educación nutricional y referencias para embarazo y niños pequeños.",
+      "who": "Debe cumplir reglas de ingreso y estar embarazada, en posparto, lactando o tener un niño menor de 5 años con riesgo nutricional (personal de WIC lo evalúa).",
+      "where": "Comience en el buscador de clínicas WIC de Mass.gov o en las páginas de WIC del Boston Public Health Commission.",
+      "trust": "Esto es información general. El personal de la clínica decide la elegibilidad."
+    },
+    "ht": {
+      "what": "WIC bay manje ki an sante, edikasyon nitrisyon, ak referans pou moun ansent ak timoun piti.",
+      "who": "Ou dwe respekte rèvni, ansent, apre akouchman, ap bay tete, oswa gen timoun anba 5 an ak risk nitrisyon (anplwaye WIC ap evalye w).",
+      "where": "Kòmanse ak klinik WIC sou Mass.gov oswa paj WIC Boston Public Health Commission.",
+      "trust": "Sa a se enfòmasyon jeneral. Anplwaye klinik la deside kalifikasyon."
+    },
+    "zh": {
+      "what": "WIC 为孕妇与幼儿提供营养食品、营养教育与转介服务。",
+      "who": "需符合收入规定，并处于怀孕、产后、哺乳期，或有 5 岁以下且存在营养风险的儿童（由 WIC 工作人员评估）。",
+      "where": "请从 Mass.gov 的 WIC 诊所查询或波士顿公共卫生委员会的 WIC 页面开始。",
+      "trust": "这是一般信息。诊所工作人员决定是否符合资格。"
+    },
+    "pt": {
+      "what": "O WIC oferece alimentos saudáveis, educação nutricional e encaminhamentos para gestantes e crianças pequenas.",
+      "who": "É preciso cumprir regras de renda e estar grávida, no pós-parto, amamentando ou ter criança menor de 5 anos com risco nutricional (avaliado pela equipe do WIC).",
+      "where": "Comece pelo localizador de clínicas WIC no Mass.gov ou nas páginas do WIC da Boston Public Health Commission.",
+      "trust": "Isto é informação geral. A equipe da clínica decide a elegibilidade."
+    }
+  },
+  "cash": {
+    "en": {
+      "what": "Massachusetts cash assistance includes programs like TAFDC (families with children) and EAEDC (certain adults with disabilities).",
+      "who": "Strict rules apply for income, assets, work requirements, and immigration status. Many immigrants face federal restrictions—DTA screening is required.",
+      "where": "Apply through DTA online, phone, mail, or a local DTA office.",
+      "trust": "This is general information. DTA decides eligibility."
+    },
+    "es": {
+      "what": "La asistencia en efectivo incluye programas como TAFDC (familias con niños) y EAEDC (ciertos adultos con discapacidad).",
+      "who": "Aplican reglas estrictas de ingresos, bienes, requisitos de trabajo y estado migratorio. Muchas personas inmigrantes enfrentan restricciones federales—se requiere evaluación de DTA.",
+      "where": "Solicite a través de DTA en línea, teléfono, correo o una oficina local.",
+      "trust": "Esto es información general. DTA decide la elegibilidad."
+    },
+    "ht": {
+      "what": "Asistans lajan gen program tankou TAFDC (fanmi ak timoun) ak EAEDC (sèten granmoun ki gen andikap).",
+      "who": "Gen rè strik sou revni, byen, travay, ak estati imigrasyon. Anpil imigran gen restriksyon federal—DTA dwe evalye w.",
+      "where": "Apliye atravè DTA sou entènèt, telefòn, lèt, oswa biwo lokal.",
+      "trust": "Sa a se enfòmasyon jeneral. DTA deside kalifikasyon."
+    },
+    "zh": {
+      "what": "麻州现金援助包括 TAFDC（有子女家庭）与 EAEDC（部分残障成人）等项目。",
+      "who": "对收入、资产、工作要求与移民身份有严格规定。许多移民受联邦限制—需经 DTA 审核。",
+      "where": "可通过 DTA 网站、电话、邮寄或当地办公室申请。",
+      "trust": "这是一般信息。是否合格由 DTA 决定。"
+    },
+    "pt": {
+      "what": "A assistência em dinheiro inclui programas como TAFDC (famílias com crianças) e EAEDC (certos adultos com deficiência).",
+      "who": "Há regras rígidas para renda, patrimônio, requisitos de trabalho e status de imigração. Muitos imigrantes enfrentam restrições federais—é necessária triagem da DTA.",
+      "where": "Inscreva-se pela DTA online, telefone, correio ou escritório local.",
+      "trust": "Isto é informação geral. A DTA decide a elegibilidade."
+    }
+  }
+}

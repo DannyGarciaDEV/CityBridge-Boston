@@ -1,0 +1,19 @@
+{
+  "name": "mcp-boss",
+  "private": true,
+  "description": "CityBridge Boston — AI civic resource decision assistant (MCP server, curated data, kiosk UI).",
+  "scripts": {
+    "prefetch": "python3 scripts/fetch_resources.py",
+    "dev": "npm run dev:kiosk",
+    "start": "npm run dev:kiosk",
+    "install:server": "npm --prefix server install",
+    "install:kiosk": "npm --prefix kiosk install",
+    "build:mcp": "npm --prefix server run build",
+    "build:kiosk": "npm --prefix kiosk run build",
+    "build": "npm run prefetch && npm run build:mcp && npm run build:kiosk",
+    "setup:server": "npm run install:server && npm run build:mcp",
+    "dev:kiosk": "npm --prefix kiosk run dev",
+    "dev:mcp": "npm --prefix server run dev",
+    "mcp": "node server/mcp-launch.mjs"
+  }
+}

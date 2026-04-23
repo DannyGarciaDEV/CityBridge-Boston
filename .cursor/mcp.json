@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "boston-resource-assistant": {
+      "command": "node",
+      "args": ["server/mcp-launch.mjs"],
+      "cwd": "${workspaceFolder}"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap");
+
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Source Sans 3", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: Georgia, "Times New Roman", ui-serif, serif;
+}
+
+/* Leaflet: match app typography */
+.leaflet-container {
+  font-family: var(--font-sans);
+  background: linear-gradient(180deg, #f0f9ff 0%, #f8fafc 100%);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 0.75rem;
+  border: 1px solid rgb(186 230 253 / 0.9);
+  box-shadow:
+    0 10px 25px -5px rgb(14 165 233 / 0.12),
+    0 4px 10px -4px rgb(0 0 0 / 0.06);
+}
+
+.leaflet-popup-content {
+  margin: 0.75rem 1rem;
+  line-height: 1.45;
+}
+
+.leaflet-control-attribution {
+  font-size: 10px;
+  background: rgb(255 255 255 / 0.92) !important;
+}

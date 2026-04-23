@@ -1,0 +1,9 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+.venv/
+data/resources.json
+kiosk/api/resources.snapshot.json
+.gitignore
+.env

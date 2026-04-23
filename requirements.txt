@@ -1,0 +1,2 @@
+# Works on Python 3.8+; use a venv with a current pip (`python -m pip install -U pip`).
+datasets>=2.14.0,<3.0.0
