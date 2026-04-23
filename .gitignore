@@ -5,5 +5,5 @@ dist/
 .venv/
 data/resources.json
 kiosk/api/resources.snapshot.json
-.gitignore
+api/resources.snapshot.json
 .env

@@ -11,6 +11,7 @@
     "build:mcp": "npm --prefix server run build",
     "build:kiosk": "npm --prefix kiosk run build",
     "build": "npm run prefetch && npm run build:mcp && npm run build:kiosk",
+    "vercel-build": "python3 scripts/fetch_resources.py && node scripts/vercel-build.mjs",
     "setup:server": "npm run install:server && npm run build:mcp",
     "dev:kiosk": "npm --prefix kiosk run dev",
     "dev:mcp": "npm --prefix server run dev",

@@ -16,7 +16,14 @@ const REPO_DATA_PATH = path.resolve(__dirname, "../../data/resources.json");
 function resolveResourcesJsonPath(): string {
   const envPath = process.env.RESOURCES_JSON_PATH?.trim();
   if (envPath && existsSync(envPath)) return envPath;
+  // Repo-root Vercel deploy: snapshot copied to /api/resources.snapshot.json
+  const rootApiSnap = path.join(process.cwd(), "api", "resources.snapshot.json");
+  if (existsSync(rootApiSnap)) return rootApiSnap;
+  const kioskApiSnap = path.join(process.cwd(), "kiosk", "api", "resources.snapshot.json");
+  if (existsSync(kioskApiSnap)) return kioskApiSnap;
   if (existsSync(SNAPSHOT_PATH)) return SNAPSHOT_PATH;
+  const rootData = path.join(process.cwd(), "data", "resources.json");
+  if (existsSync(rootData)) return rootData;
   return REPO_DATA_PATH;
 }
 

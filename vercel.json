@@ -1,10 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
-  "installCommand": "npm install && cd .. && python3 -m pip install --user -q -r requirements.txt",
-  "buildCommand": "cd .. && python3 scripts/fetch_resources.py && cd kiosk && npm run build",
-  "outputDirectory": "dist",
-  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }],
+  "framework": null,
+  "installCommand": "python3 -m pip install --user -q -r requirements.txt && npm install --prefix kiosk",
+  "buildCommand": "npm run vercel-build",
+  "outputDirectory": "kiosk/dist",
   "headers": [
     {
       "source": "/(.*)",
@@ -15,19 +14,14 @@
       ]
     }
   ],
+  "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }],
   "functions": {
     "api/boston-chat.ts": {
       "maxDuration": 60,
       "includeFiles": "api/resources.snapshot.json"
     },
-    "api/deepgram/transcribe.ts": {
-      "maxDuration": 60
-    },
-    "api/deepgram/speak.ts": {
-      "maxDuration": 45
-    },
-    "api/mbta/stops.ts": {
-      "maxDuration": 25
-    }
+    "api/deepgram/transcribe.ts": { "maxDuration": 60 },
+    "api/deepgram/speak.ts": { "maxDuration": 45 },
+    "api/mbta/stops.ts": { "maxDuration": 25 }
   }
 }

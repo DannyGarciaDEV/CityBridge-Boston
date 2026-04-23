@@ -52,7 +52,7 @@ This project is a **kiosk-first** web UI with:
 
 - **Monorepo:** `kiosk/` (Vite + React + Leaflet), `server/` (MCP), `scripts/` (HF fetch), `data/` (generated bundle + meta).  
 - **Data flow (local dev chat):** Browser → Vite middleware **`/api/boston-chat`** → load **`data/resources.json`** → **`resolveContextRowsForChat`** → Claude → Markdown reply.  
-- **Data flow (Vercel production):** Browser → **serverless** routes under `kiosk/api/` (`boston-chat`, `deepgram/*`, `mbta/stops`) → `api/resources.snapshot.json` (copied at `npm run build`) → same Anthropic / Deepgram / MBTA logic.  
+- **Data flow (Vercel production):** Browser → **serverless** `/api/*` → **`resources.snapshot.json`** (HF pull at build, then copied next to the function) → same Anthropic / Deepgram / MBTA logic. Works with **Root Directory `./`** (root `vercel.json` + thin `api/*.ts` re-exports) or **Root Directory `kiosk`** (`kiosk/vercel.json`).  
 - **Data flow (agents):** MCP client → **`server/`** tools → same JSON file.  
 - **Data flow (dataset):** Hugging Face → **`scripts/fetch_resources.py`** → `data/resources.json` (gitignored).  
 - **Map UX:** The map does **not** auto-pan when you change category or search (avoids “moving the person” away from where they panned).  
@@ -116,12 +116,22 @@ To change what’s live, **update the dataset on Hugging Face**, then redeploy o
 
 ## Production (Vercel)
 
-Deploy with **Root Directory = `kiosk`**. `kiosk/vercel.json` will:
+You can deploy in **either** layout. Pick one and set **Root Directory** in the Vercel project accordingly.
 
-1. Install Python **`datasets`** from the parent `requirements.txt`.  
-2. Run **`scripts/fetch_resources.py`** → writes `../data/resources.json`.  
-3. Run **`npm run build`** → **`prebuild`** copies that file to **`kiosk/api/resources.snapshot.json`** (gitignored) for serverless; Vercel **`includeFiles`** bundles it with **`api/boston-chat`**.  
-4. Emit static **`dist/`** plus **Node serverless** routes:
+### Option A — Easiest showcase (Root Directory `./`)
+
+Leave the project root as **`./`** (default when you import the Git repo). **Do not** pick the **Python** framework preset—this app is **Vite (static) + Node serverless**.
+
+1. Vercel reads **`vercel.json`** at the repo root.  
+2. **`installCommand`** installs **`requirements.txt`** (HF fetch) and **`npm install --prefix kiosk`**.  
+3. **`npm run vercel-build`** runs **`scripts/fetch_resources.py`**, copies **`data/resources.json`** → **`api/resources.snapshot.json`** and **`kiosk/api/resources.snapshot.json`**, then **`npm run build --prefix kiosk`**.  
+4. Static output is **`kiosk/dist`**; API routes are the thin **`api/*.ts`** files that re-export **`kiosk/api/*`**. Chat bundles the snapshot via **`includeFiles`**.
+
+### Option B — Kiosk as root (Root Directory `kiosk`)
+
+Set **Root Directory** to **`kiosk`**. Vercel uses **`kiosk/vercel.json`**: install runs from `kiosk`, pulls parent **`requirements.txt`**, runs **`fetch_resources.py`** from the parent, then **`npm run build`** in `kiosk` ( **`prebuild`** still copies the snapshot for serverless).
+
+### Shared: API routes and env
 
 | Route | Purpose |
 |--------|---------|
@@ -137,7 +147,9 @@ Deploy with **Root Directory = `kiosk`**. `kiosk/vercel.json` will:
 - **`MBTA_API_KEY`** (recommended)  
 - **`DEEPGRAM_API_KEY`** / **`DEEPGRAM_TTS_MODEL`** (optional, voice)  
 
-**Security / polish included:** response security headers in `vercel.json`, chat function **maxDuration** 60s, React **error boundary** for client crashes, shared **`bostonApiHandlers`** so dev and prod use the same chat logic.
+If the Hugging Face dataset is **private**, add whatever **`fetch_resources.py`** expects (e.g. **`HF_TOKEN`**) in Vercel **Environment Variables** so the build can pull `data/resources.json`.
+
+**Security / polish included:** response security headers in `vercel.json`, SPA **`rewrites`** in both root and `kiosk/vercel.json` (client routes, `/api/*` unchanged), chat function **maxDuration** 60s, React **error boundary** for client crashes, shared **`bostonApiHandlers`** so dev and prod use the same chat logic.
 
 **MCP server** is still a **separate Node process** (`npm run mcp`); it is not hosted on Vercel by this config.
 
