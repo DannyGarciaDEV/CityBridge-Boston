@@ -240,8 +240,6 @@ This project is **original** work, built on **open** libraries and **documented*
 | **MCP** | [Model Context Protocol](https://modelcontextprotocol.io/) and [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) for the `server/` tools. |
 | **Python** | `datasets` / `huggingface-hub` in `requirements.txt` for the fetch script. |
 
-**Credentials**  
-Do not commit **live** API keys. Use **`.env`** locally and **Vercel environment variables** in production. This repo’s **`.env.example`** uses **empty** placeholders only.
 
 **Data & legal**  
 The app is **not** legal or medical advice. Users should **call ahead**; immigration language is **supplemented** by in-repo `data/resources-meta.json` where applicable.
