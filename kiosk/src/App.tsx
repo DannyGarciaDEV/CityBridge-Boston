@@ -4,7 +4,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { CircleMarker, MapContainer, Popup, TileLayer, useMap } from "react-leaflet";
 import type { Lang, UiTextKey } from "./i18n";
 import { t } from "./i18n";
-import { groupByArea, parseMbtaStopsPayload, type MbtaAreaKey, type MbtaStopRow } from "./mbtaDisplay";
+import {
+  groupByArea,
+  mbtaStopVehicleKind,
+  parseMbtaStopsPayload,
+  parseRoutesLabels,
+  type MbtaAreaKey,
+  type MbtaStopRow,
+  type MbtaVehicleKind,
+} from "./mbtaDisplay";
 import { ResourceChat, type ResourceChatHandle } from "./ResourceChat";
 import type { ResourceRecord, ResourceType } from "./types";
 type Category = "all" | "immigration" | "family" | "benefits" | "food" | "emergency" | "housing" | "health" | "city";
@@ -37,6 +45,23 @@ function markerColor(type: ResourceType): string {
 
 function formatResultsCount(lang: Lang, count: number): string {
   return t(lang, "resultsCount").replace("{{count}}", String(count));
+}
+
+function mbtaVehicleTextKey(kind: MbtaVehicleKind): UiTextKey {
+  switch (kind) {
+    case "tram":
+      return "mbtaVehicleTram";
+    case "subway":
+      return "mbtaVehicleSubway";
+    case "rail":
+      return "mbtaVehicleRail";
+    case "bus":
+      return "mbtaVehicleBus";
+    case "ferry":
+      return "mbtaVehicleFerry";
+    default:
+      return "mbtaVehicleOther";
+  }
 }
 
 function typeBadgeLabel(lang: Lang, type: ResourceType): string {
@@ -195,7 +220,25 @@ export function App() {
       if (rows.length === 0) {
         setTransitErr("No stops returned for this spot. Move the map and try again.");
       } else {
-        setTransitGroups(groupByArea(rows));
+        const enriched = await Promise.all(
+          rows.map(async (row) => {
+            const rUrl = new URL("/api/mbta/routes", window.location.origin);
+            rUrl.searchParams.set("filter[stop]", row.id);
+            rUrl.searchParams.set("page[limit]", "40");
+            try {
+              const rr = await fetch(rUrl.toString(), {
+                headers: { Accept: "application/vnd.api+json" },
+                signal: ac.signal,
+              });
+              if (!rr.ok) return row;
+              const rj = await rr.json();
+              return { ...row, routes: parseRoutesLabels(rj) };
+            } catch {
+              return row;
+            }
+          }),
+        );
+        setTransitGroups(groupByArea(enriched));
       }
     } catch (e) {
       if (e instanceof DOMException && e.name === "AbortError") {
@@ -568,17 +611,31 @@ export function App() {
                           : t(lang, "mbtaAreaOther")}
                     </h3>
                     <ul className="space-y-3 border-l-2 border-zinc-300 pl-4">
-                      {stops.map((s) => (
-                        <li key={s.id} className="rounded-md border border-zinc-100 bg-zinc-50 py-2 pl-2 text-sm">
-                          <p className="font-medium text-zinc-900">{s.name}</p>
-                          {s.description && s.description !== s.name && (
-                            <p className="mt-0.5 text-zinc-600">{s.description}</p>
-                          )}
-                          {s.municipality && (
-                            <p className="mt-1 text-xs font-medium text-zinc-500">{s.municipality}</p>
-                          )}
-                        </li>
-                      ))}
+                      {stops.map((s) => {
+                        const vKind = mbtaStopVehicleKind(s.vehicleType);
+                        return (
+                          <li key={s.id} className="rounded-md border border-zinc-100 bg-zinc-50 py-2 pl-2 text-sm">
+                            <p className="font-medium text-zinc-900">{s.name}</p>
+                            {vKind && (
+                              <p className="mt-0.5 text-xs font-medium text-sky-800">{t(lang, mbtaVehicleTextKey(vKind))}</p>
+                            )}
+                            {s.description && s.description !== s.name && (
+                              <p className="mt-0.5 text-zinc-600">{s.description}</p>
+                            )}
+                            {s.municipality && (
+                              <p className="mt-1 text-xs font-medium text-zinc-500">{s.municipality}</p>
+                            )}
+                            {s.routes.length > 0 && (
+                              <div className="mt-2 border-t border-zinc-200/80 pt-2">
+                                <p className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                                  {t(lang, "mbtaRoutesLabel")}
+                                </p>
+                                <p className="mt-1 text-xs leading-relaxed text-zinc-700">{s.routes.join(" · ")}</p>
+                              </div>
+                            )}
+                          </li>
+                        );
+                      })}
                     </ul>
                   </div>
                 ))}

@@ -28,6 +28,9 @@
     },
     "api/mbta/stops.ts": {
       "maxDuration": 25
+    },
+    "api/mbta/routes.ts": {
+      "maxDuration": 25
     }
   }
 }
