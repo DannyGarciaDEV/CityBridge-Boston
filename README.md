@@ -116,6 +116,21 @@ To change what’s live, **update the dataset on Hugging Face**, then redeploy o
 
 ## Production (Vercel)
 
+### You must clear the Vercel “Install Command” override (critical)
+
+If the build log shows this exact line, your **project** is not using the repo’s config — a **custom Install Command** is saved in the dashboard and **replaces** `kiosk/vercel.json` / root `vercel.json`:
+
+`npm install && cd .. && python3 -m pip install --user -q -r requirements.txt`
+
+1. Vercel → your project → **Settings** → **Build & Development**  
+2. **Install Command** → click **“Override”** to turn it **off**, or set it to the default / **empty** so the **Root Directory** + `vercel.json` apply.  
+3. **Build Command** should also be **not** overridden, unless you paste the value from the Option A/B list below.  
+4. **Redeploy** after saving. The install line must be only **`npm install`** when **Root Directory** is **`kiosk`**, or **`npm install && npm run install:kiosk`** when the root is **`./`** (see your chosen option below).
+
+`kiosk/package.json` has a **`postinstall`** that runs **`vercel-python-setup`**, so a plain **`npm install`** in `kiosk/` is enough (no `pip` on the system Python).
+
+---
+
 You can deploy in **either** layout. Pick one and set **Root Directory** in the Vercel project accordingly.
 
 ### Option A — Easiest showcase (Root Directory `./`)
@@ -123,13 +138,16 @@ You can deploy in **either** layout. Pick one and set **Root Directory** in the 
 Leave the project root as **`./`** (default when you import the Git repo). **Do not** pick the **Python** framework preset—this app is **Vite (static) + Node serverless**.
 
 1. Vercel reads **`vercel.json`** at the repo root.  
-2. **`installCommand`** installs **`requirements.txt`** (HF fetch) and **`npm install --prefix kiosk`**.  
-3. **`npm run vercel-build`** runs **`scripts/fetch_resources.py`**, copies **`data/resources.json`** → **`api/resources.snapshot.json`** and **`kiosk/api/resources.snapshot.json`**, then **`npm run build --prefix kiosk`**.  
-4. Static output is **`kiosk/dist`**; API routes are the thin **`api/*.ts`** files that re-export **`kiosk/api/*`**. Chat bundles the snapshot via **`includeFiles`**.
+2. **`installCommand`** is **`npm install && npm run install:kiosk`**; **`kiosk`**’s **`postinstall`** creates **`.vercel-python`** and installs **`requirements.txt`** (no `pip --user`), and root **`npm install`** brings in **`@vercel/node`** for repo-root **`api/*.ts`**.  
+3. **`buildCommand`** is **`npm run vercel-build`**: **`node scripts/run-prefetch.mjs`**, snapshot copy + **`api/resources.snapshot.json`**, then **`npm run build --prefix kiosk`**.  
+4. Static output is **`kiosk/dist`**; API routes are the thin **`api/*.ts`** files that re-export **`kiosk/api/*`**. Chat bundles the snapshot via **`includeFiles`**.  
+5. **Node:** use **20** or **22** (see **`engines`** in **`package.json`**). **Framework preset:** None / Other — not “Python”.
 
-### Option B — Kiosk as root (Root Directory `kiosk`)
+**Local dry-run (same as Vercel build):** `npm run install:vercel` then **`npm run vercel-build`**.
 
-Set **Root Directory** to **`kiosk`**. Vercel uses **`kiosk/vercel.json`**: install runs from `kiosk`, pulls parent **`requirements.txt`**, runs **`fetch_resources.py`** from the parent, then **`npm run build`** in `kiosk` ( **`prebuild`** still copies the snapshot for serverless).
+### Option B — Kiosk as root (Root Directory `kiosk`) — set Install to `npm install` only
+
+Vercel should use **`kiosk/vercel.json`**: **`installCommand`:** **`npm install`** ( **`postinstall`** runs **Python** setup), **`buildCommand`:** **`node ./scripts/vercel-build-data.mjs && npm run build`**. If you set **Install** to the old `pip install --user` string in the dashboard, the deploy **will** fail; clear that override (see the **critical** steps at the top of this section).
 
 ### Shared: API routes and env
 
@@ -148,6 +166,10 @@ Set **Root Directory** to **`kiosk`**. Vercel uses **`kiosk/vercel.json`**: inst
 - **`DEEPGRAM_API_KEY`** / **`DEEPGRAM_TTS_MODEL`** (optional, voice)  
 
 If the Hugging Face dataset is **private**, add whatever **`fetch_resources.py`** expects (e.g. **`HF_TOKEN`**) in Vercel **Environment Variables** so the build can pull `data/resources.json`.
+
+**`externally-managed-environment` / `pip install --user` errors:** never install HF deps onto the system Python. This repo uses **`node scripts/vercel-python-setup.mjs`** during Vercel **install** to create **`.vercel-python`** and run **`pip install -r requirements.txt` only inside that venv**. **`npm run prefetch`** uses **`node scripts/run-prefetch.mjs`** (venv if present, else **`python3`**).
+
+**Vercel still runs `pip install --user`:** your project likely has a **custom Install Command** in the dashboard that overrides `vercel.json`. Open **Project → Settings → Build & Development Settings** and clear **Install Command** (and **Build Command** if overridden) so **Root Directory** + **`vercel.json`** control the build.
 
 **Security / polish included:** response security headers in `vercel.json`, SPA **`rewrites`** in both root and `kiosk/vercel.json` (client routes, `/api/*` unchanged), chat function **maxDuration** 60s, React **error boundary** for client crashes, shared **`bostonApiHandlers`** so dev and prod use the same chat logic.
 

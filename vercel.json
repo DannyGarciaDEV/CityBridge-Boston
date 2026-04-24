@@ -1,7 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "python3 -m pip install --user -q -r requirements.txt && npm install --prefix kiosk",
+  "installCommand": "npm install && npm run install:kiosk",
   "buildCommand": "npm run vercel-build",
   "outputDirectory": "kiosk/dist",
   "headers": [

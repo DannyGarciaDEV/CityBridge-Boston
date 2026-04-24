@@ -1,8 +1,8 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": "vite",
-  "installCommand": "npm install && cd .. && python3 -m pip install --user -q -r requirements.txt",
-  "buildCommand": "cd .. && python3 scripts/fetch_resources.py && cd kiosk && npm run build",
+  "installCommand": "npm install",
+  "buildCommand": "node ./scripts/vercel-build-data.mjs && npm run build",
   "outputDirectory": "dist",
   "rewrites": [{ "source": "/((?!api/).*)", "destination": "/index.html" }],
   "headers": [

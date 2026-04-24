@@ -4,14 +4,25 @@
   "description": "CityBridge Boston kiosk — map, categories, and chat UI for civic resource guidance.",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": "20.x || 22.x"
+  },
   "scripts": {
     "dev": "vite",
     "prebuild": "node ./scripts/prepare-server-data.mjs",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "node ../scripts/vercel-python-setup.mjs"
+  },
+  "overrides": {
+    "ajv": "^8.18.0",
+    "minimatch": "^10.2.5",
+    "path-to-regexp": "^6.3.0",
+    "smol-toml": "^1.6.1",
+    "undici": "^6.25.0"
   },
   "dependencies": {
-    "@vercel/node": "^5.1.14",
+    "@vercel/node": "^5.7.13",
     "@tailwindcss/vite": "^4.2.2",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.8.0",

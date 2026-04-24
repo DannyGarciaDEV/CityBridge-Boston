@@ -3,7 +3,9 @@ dist/
 *.log
 .DS_Store
 .venv/
+.vercel-python/
 data/resources.json
 kiosk/api/resources.snapshot.json
 api/resources.snapshot.json
 .env
+.vercel
