@@ -1,98 +1,120 @@
-# Boston Resource Kiosk AI (CityBridge Boston)
+# CityBridge Boston (Boston Resource Kiosk AI)
 
-**Repository folder:** `mcp-boss`  
-**Public name in the UI:** CityBridge Boston  
-**Live site:** [https://city-bridge-boston.vercel.app/](https://city-bridge-boston.vercel.app/)
+**Project title:** CityBridge Boston — a **kiosk-style web app** for **Greater Boston civic resources** (food, shelter, health, benefits, family, immigration, city/311, and more).
 
-Kiosk web app + MCP server that help people find Greater Boston civic resources (food, shelter, health, benefits, family, immigration, 311). The **resource table** is pulled from **Hugging Face** at build time; disclaimers ship in-repo in `data/resources-meta.json`.
+**Repository folder:** `mcp-boss` **·** **Live app:** [https://city-bridge-boston.vercel.app/](https://city-bridge-boston.vercel.app/) **·** **Source:** [DannyGarciaDEV / CityBridge-Boston](https://github.com/DannyGarciaDEV/CityBridge-Boston)
 
-### Visual overview (screenshots)
-
-#### 1. Hugging Face — `drixo/resources-boston`
-
-![Hugging Face dataset viewer for drixo/resources-boston](img/huggingface-resources.png)
-
-**What it is in the app:** the **versioned, public source** for the directory ([`drixo/resources-boston`](https://huggingface.co/datasets/drixo/resources-boston) on the Hub). The viewer shows the **JSON** `train` split: columns such as **`id`**, **`type`** (e.g. immigration, food, shelter), **`name`**, **`location`** (lat/long for map pins), **`address`**, **`hours`**, and other fields your revision includes. **CityBridge** does not edit this in the UI; **`scripts/fetch_resources.py`** pulls it at build (or on **`npm run prefetch`**) into **`data/resources.json`**, which the **map, list, and Help chat** all read. Change the data on Hugging Face → redeploy or prefetch → the kiosk reflects the new rows. Local legal/disclaimer text still lives in **`data/resources-meta.json`**.
-
-#### 2. Kiosk — map, topics, and list
-
-![CityBridge Boston map and resource list](img/maps.png)
-
-**What it is in the app:** the **Vite + React + Leaflet** home screen. Visitors pick a **category** (shelter, food, health, immigration, family, benefits, 311, etc.), **search** the directory, and see **map markers** and **program cards** from the same `resources` table the chat uses. The map is **kiosk-friendly**: it does not auto-fly to a new area when the topic or search changes, so the user is not yanked away from where they panned the map.
-
-#### 3. Help chat — grounded assistant
-
-![CityBridge Boston Help chat](img/aichat.png)
-
-**What it is in the app:** **Help** (Anthropic **Claude** via the Messages API). Replies are meant to be **grounded in the directory snapshot**—not generic web answers—so phone numbers and programs line up with your Hugging Face data. The UI supports **several languages**, and **retrieval** expands the snapshot using tokens from the user (e.g. a program or neighborhood name) so the model can mention programs even if they are not on the first “page” of the filtered list.
-
-#### 4. MBTA — stops and lines near the map
-
-![MBTA nearby stops, modes, and routes in CityBridge Boston](img/routes.png)
-
-**What it is in the app:** a **separate** panel for **transit** near the **current map center**, powered by the **[MBTA V3 API](https://www.mbta.com/developers)**: **stop/station names**, a **mode** when the API gives it, **route and line names** (bus and rail) per stop when available, and a link to **mbta.com** for trip planning. It helps someone plan **how to get there**; the **civic program directory** still comes from **Hugging Face**, not from the T.
+The resource directory is loaded from a **Hugging Face** dataset at build time. Legal and immigration disclaimers ship in-repo in `data/resources-meta.json`.
 
 ---
 
 ## Problem statement
 
-People under stress often need **food, shelter, health care, benefits, or legal referrals** quickly, but information is scattered across city sites, PDFs, and nonprofit pages. Static lists are hard to search; general-purpose chatbots **hallucinate** phone numbers and hours.
+People under stress often need **food, shelter, health care, benefits, or legal referrals** quickly, but the information is scattered across city pages, PDFs, and many nonprofit sites. **Static long lists** are hard to use under pressure. **Generic chatbots** are risky: they can **hallucinate** phone numbers, hours, and program names.
 
-**Who is affected:** residents, especially those without reliable transport or time to dig through multiple sites—**kiosk users in libraries, shelters, or community centers** bear the worst of bad UX.
+**Who is most affected**  
+Residents with limited time, data, or mobility—especially people using **kiosks or shared devices** in libraries, shelters, and community centers, where bad UX and wrong information hurt the most.
 
-**Why it matters:** wrong or missing information wastes trips and erodes trust. **Success** means someone can get **accurate, actionable next steps** in one session, grounded in **curated data**, with **plain language** and optional voice.
+**Why it matters**  
+Inaccurate or missing information wastes trips, erodes **trust** in public systems, and can steer people away from help they are eligible for.
+
+**What success looks like**  
+Someone can get **accurate, plain-language, actionable next steps** in a single session, grounded in **curated program data** (not the open web), in **multiple languages**, with an optional path to **voice** and to **transit** info for getting there. Success is visible when the **map, list, and chat** all cite the same rows from the same dataset, and when users (or evaluators) can **verify** rows against the published Hugging Face table.
 
 ---
 
 ## Solution overview
 
-This project is a **kiosk-first** web UI with:
+CityBridge Boston is a **kiosk-first** experience with four main ideas:
 
-- **Map + categories + search** for browsing structured programs  
-- **Help chat** (Anthropic Claude) that must **ground** answers in a **directory snapshot** from the same dataset the map uses  
-- **MCP server** so coding agents can call **tools** over the same data  
-- **Hugging Face** as the **versioned source** for rows (`drixo/resources-boston`), merged with local `meta` for legal/disclaimer text  
+1. **Map + topics + search** — Browse a structured **directory** with **Leaflet** pins and cards, filtered by category and search.
+2. **Help chat (Anthropic Claude)** — A conversational layer that is instructed to **ground** answers in a **snapshot of the same directory** the map uses, so the assistant is not a general-purpose “web oracle.”
+3. **Hugging Face as the data plane** — Rows come from a versioned public dataset ([`drixo/resources-boston`](https://huggingface.co/datasets/drixo/resources-boston)) pulled at build (or on demand via **`npm run prefetch`**). You can **update the Hub** and **redeploy** to change what’s live, without a giant data diff in git.
+4. **MCP server (optional, dev/agents)** — A **Model Context Protocol** service in `server/` exposes **tools** over the **same** JSON, so agents (e.g. in Cursor) can **query resources** consistently with the app.
 
-**AI role:** **Core** to the chat experience—natural language in, structured citations out—but **supplementary** to the map (the map works without chat). AI is **meaningfully better** than a non-AI list because it can interpret intent, summarize steps, and speak in the visitor’s UI language—**as long as** the program appears in the snapshot sent to the model.
+**Role of AI**  
+AI is **core to Help chat** (understanding questions, summarizing, multilingual replies, safety framing). It is **supplementary** to the **map and list**—the directory works without chat. Compared with a non-AI list alone, a grounded assistant can **interpret intent**, **synthesize steps**, and **match** user language to the right program **when that program is in the retrieval snapshot**. A key design choice is **retrieval + snapshot**: the model is only as good as the rows you send—so the app **expands** the snapshot from user **keywords** (e.g. program names) so the model can answer by name even when the program is not on the first “page” of the list.
 
-**Chat retrieval fix:** The snapshot is no longer “only the first 55 rows on the filtered list.” Recent **user** messages are **tokenized** (length ≥ 3, common stopwords removed); any row whose **name, id, address, hours, eligibility, or services** contains a token (e.g. `bagly` → **BAGLY** / `fam-bagly`) is **prepended** to the snapshot so the model can answer by name without you having to scroll the list first.
+**Chat retrieval (practical RAG without embeddings)**  
+User text is **tokenized**; rows whose **name, id, address, hours, eligibility, or services** match a token are **merged into** the context sent to the model (plus the filtered list). This is lighter than embedding the whole corpus for a kiosk, but it still requires **deliberate tuning** of stopwords and snapshot size.
 
 ---
 
 ## AI integration
 
-| Layer | Technology | Why |
-|--------|------------|-----|
-| Chat LLM | **Anthropic Claude** (Messages API) | Strong instruction-following for grounded, multilingual replies. |
-| Chat retrieval | **Keyword expansion + kiosk filter** over `resources.json` (light “RAG”) | Keeps latency and cost down vs embeddings; prioritizes **exact name/id** matches from user text. |
-| Voice | **Deepgram** STT/TTS optional | Mic + “play last reply” (local + Vercel); TTS strips Markdown server-side. |
-| Agents | **MCP** (`server/`) | Standard tool surface for Cursor-style clients. |
-| Data | **Hugging Face `datasets`** | Reproducible pulls; CI/build run the same script as local. |
+| Layer | Technology | Why it was chosen |
+|--------|------------|-------------------|
+| **Chat LLM** | **Anthropic Claude** (Messages API) | Strong **instruction-following** for **grounded**, **multilingual** answers with clear system prompts. |
+| **“RAG” / retrieval** | **Keyword expansion + list filter** over `resources.json` | **Lower cost and latency** than embedding search for a mid-sized table; good **name/id** matching when users type specific programs. **Tradeoff:** not full semantic search across arbitrary phrasing. |
+| **Voice (optional)** | **Deepgram** STT / TTS | Mic in the UI and “play last reply”; server strips **Markdown** before TTS. |
+| **Agent surface** | **MCP** (`server/`) | **Standard tool** interface for coding agents, same data as the kiosk. |
+| **Data ingestion** | **Hugging Face `datasets`** (Python) | **Reproducible** fetches; same **prefetch** in dev, CI, and Vercel build. |
 
-**Tradeoffs considered:** **Cost/latency** vs larger context—we cap snapshot size and expand by **keywords**, not the whole corpus in one prompt. **Accuracy** depends on dataset quality; the model is told not to invent rows not in the snapshot.
+**Tradeoffs** (cost, latency, reliability, accuracy)  
+- **Context size** is capped: we send a **relevant slice** of rows, not the full Hub dump every time.  
+- **Accuracy** depends on **dataset quality** and **retrieval**; the model is told **not to invent** programs that are not in the snapshot.  
+- **No embeddings in v1:** cheaper and faster, but **synonym-heavy** questions may need future semantic search.  
 
-**Where AI exceeded expectations:** fast iteration on MCP schemas and Vite middleware. **Where it fell short:** you still have to **design retrieval** (e.g. BAGLY off the first page)—pure “first N rows” was a bad default and is now addressed in code.
+**What exceeded expectations**  
+Fast iteration on **MCP** contracts, **Vite** dev middleware, and **TypeScript** wiring between map, API routes, and prompts.
+
+**What fell short / manual**  
+**Retrieval edge cases** (e.g. “only first N rows in the list”) required explicit **code fixes**; **aligning** dataset fields, **snapshot**, and **system prompt** is not something models write end-to-end without human review. **AI coding tools** speed scaffolding; they do not replace **failure-mode thinking**.
 
 ---
 
 ## Architecture / design decisions
 
-- **Monorepo:** `kiosk/` (Vite + React + Leaflet), `server/` (MCP), `scripts/` (HF fetch), `data/` (generated bundle + meta).  
-- **Data flow (local dev chat):** Browser → Vite middleware **`/api/boston-chat`** → load **`data/resources.json`** → **`resolveContextRowsForChat`** → Claude → Markdown reply.  
-- **Data flow (Vercel production):** Browser → **serverless** `/api/*` → **`resources.snapshot.json`** (HF pull at build, then copied next to the function) → same Anthropic / Deepgram / MBTA logic. Works with **Root Directory `./`** (root `vercel.json` + thin `api/*.ts` re-exports) or **Root Directory `kiosk`** (`kiosk/vercel.json`).  
-- **Data flow (agents):** MCP client → **`server/`** tools → same JSON file.  
-- **Data flow (dataset):** Hugging Face → **`scripts/fetch_resources.py`** → `data/resources.json` (gitignored).  
-- **Map UX:** The map does **not** auto-pan when you change category or search (avoids “moving the person” away from where they panned).  
+- **Monorepo**  
+  - `kiosk/` — **Vite + React** UI, **Leaflet** map, **serverless-style** API routes under `kiosk/api/`.  
+  - `server/` — **MCP** server (Node) for **agents**; not required to run the static+kiosk build.  
+  - `scripts/` — **`fetch_resources.py`** and helpers to pull the Hugging Face dataset.  
+  - `data/` — Generated **`resources.json`** (gitignored) and committed **`resources-meta.json`** (disclaimers / legal context).
 
-**MCP** was chosen to align with **Cursor / agent** workflows. **HF** was chosen for **versioned** civic tables you can update without shipping a giant git diff.
+- **Data flow (local dev)**  
+  Browser → Vite **middleware** for `/api/boston-chat` (and related routes) → **`data/resources.json`** → **`bostonAssistant` / `bostonApiHandlers`** → Claude → JSON/Markdown to the client.
+
+- **Data flow (production — Vercel)**  
+  Browser → **Vercel serverless** `/api/*` → **snapshot** of `resources` copied at **build** next to the function → same handler logic. **Vercel** also hosts the **static** Vite build. The **MCP** server is **not** deployed on Vercel; it is for **local** or other hosts.
+
+- **Data flow (agents)**  
+  MCP client → `server/` → same **`resources.json`** (after prefetch) as the kiosk.
+
+- **Transit**  
+  **MBTA V3 API** (proxied) for **nearby stops** and **routes** near the **map center**—**separate** from the social-service directory, which still comes from **Hugging Face**.
+
+- **Map UX**  
+  The map **does not auto-pan** when the user changes **category** or **search**, so the viewer is not “yanked” away from where they were looking.
+
+- **MCP**  
+  Chosen for **interoperability** with **Cursor-style** and other **MCP clients**, not to lock the app to one vendor’s chat UI.
+
+- **Hugging Face**  
+  Chosen to **version** a civic table, track revisions on the Hub, and avoid bloating the git history with every row change.
+
+**Production hosting (Vercel) — short version**  
+- Build pulls the dataset, builds the **kiosk** bundle, and deploys **static** + **Node** API routes.  
+- Use a **Node 20+** runtime; do **not** set a legacy dashboard **Install Command** that uses `pip install --user` on the system Python (this repo uses a **local venv** via `scripts/vercel-python-setup.mjs` and **`kiosk` `postinstall`**).  
+- **Environment variables** in Vercel: at minimum **`ANTHROPIC_API_KEY`**, optional **`MBTA_API_KEY`**, **`DEEPGRAM_*`**, **`HF_TOKEN`** (if the dataset is private), **`ANTHROPIC_MODEL`**, etc. See `/.env.example` (placeholders only).
+
+**API routes (Vercel / dev)**  
+- `POST /api/boston-chat` — chat.  
+- `POST /api/deepgram/*` — optional voice.  
+- `GET /api/mbta/stops` / `GET /api/mbta/routes` — MBTA proxy.  
+
+> **Repository layout note:** the repo can be built with Vercel **root directory** `./` or `kiosk/`; both are documented in the **detailed** deploy notes in earlier commits; root `vercel.json` and `kiosk/vercel.json` define `install`/`build`/`outputDirectory`.
 
 ---
 
-## What AI coding tools helped with—and where they got in the way
+## What did AI coding tools help you do faster—and where did they get in the way?
 
-**Faster:** MCP boilerplate, Vite plugin routes, TypeScript types, README drafts, and fetch scripts.  
+| Faster | Slower / manual |
+|--------|-----------------|
+| **Boilerplate** for MCP, Vite plugins, and TypeScript types. | **Snapshot ↔ prompt ↔ data** alignment and **hallucination** guardrails. |
+| **README and script** iteration. | **Retrieval** behavior (e.g. “program not in first 55 rows”); code had to be fixed, not just prompted. |
+| Prototyping **serverless** and **dev** API parity. | **Evaluating** edge cases: vague asks, missing keys, Hub rows missing, multilingual tone. |
 
-**Slower / manual:** aligning **dataset ↔ snapshot ↔ prompt**, stopping **hallucinated** contacts, and fixing **retrieval** edge cases (e.g. name search). Tools do not replace thinking through **failure modes**.
+Using **Cursor / Claude (and similar)** changed the process: more **spikes** and **refactors** in a day, but **no substitute** for testing **error paths** and **real** dataset rows.
 
 ---
 
@@ -103,22 +125,22 @@ git clone https://github.com/DannyGarciaDEV/CityBridge-Boston
 cd mcp-boss
 
 python3 -m venv .venv
-source .venv/bin/activate          # Windows: .venv\Scripts\activate
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
 pip install -U pip
 pip install -r requirements.txt
 
 npm run install:kiosk
 npm run install:server
 
+# Environment: copy the example; put real keys only in .env (never commit .env)
 cp .env.example .env
-# Required for chat in dev: ANTHROPIC_API_KEY
-# Optional: ANTHROPIC_MODEL, MBTA_API_KEY, DEEPGRAM_API_KEY
+# Edit .env — e.g. ANTHROPIC_API_KEY (required for chat in dev), optional DEEPGRAM_*, MBTA_*, model IDs
 
-npm run prefetch    # downloads HF dataset → writes data/resources.json
-npm run dev:kiosk   # open http://localhost:5173 (Vite default)
+npm run prefetch   # writes data/resources.json from Hugging Face
+npm run dev:kiosk  # Vite — http://localhost:5173
 ```
 
-**MCP (optional):**
+**MCP (optional, for agent clients)**
 
 ```bash
 npm run prefetch
@@ -126,123 +148,112 @@ npm run build:mcp
 npm run mcp
 ```
 
-**Production build:** `npm run build` (prefetch + MCP compile + kiosk build).
+**Full monorepo build (prefetch + MCP compile + kiosk)**
 
----
+```bash
+npm run build
+```
 
-## How to tell the app is using Hugging Face data
-
-1. **After `npm run prefetch`**, the script prints something like: `Wrote .../data/resources.json (N resources)`.  
-2. **`data/resources.json` is gitignored**—if it appears only after prefetch, it came from the script, not a committed copy.  
-3. **Inspect the file:** e.g. `grep -i bagly data/resources.json`—if your Hub revision includes BAGLY, it will be there; row count **N** matches what the Hub revision returned.  
-4. **Chat and map** both read that same generated file in dev (`kiosk/api/bostonAssistant.ts` → `loadResourceRows`).  
-
-To change what’s live, **update the dataset on Hugging Face**, then redeploy or run `npm run prefetch` again.
-
----
-
-## Production (Vercel)
-
-### You must clear the Vercel “Install Command” override (critical)
-
-If the build log shows this exact line, your **project** is not using the repo’s config — a **custom Install Command** is saved in the dashboard and **replaces** `kiosk/vercel.json` / root `vercel.json`:
-
-`npm install && cd .. && python3 -m pip install --user -q -r requirements.txt`
-
-1. Vercel → your project → **Settings** → **Build & Development**  
-2. **Install Command** → click **“Override”** to turn it **off**, or set it to the default / **empty** so the **Root Directory** + `vercel.json` apply.  
-3. **Build Command** should also be **not** overridden, unless you paste the value from the Option A/B list below.  
-4. **Redeploy** after saving. The install line must be only **`npm install`** when **Root Directory** is **`kiosk`**, or **`npm install && npm run install:kiosk`** when the root is **`./`** (see your chosen option below).
-
-`kiosk/package.json` has a **`postinstall`** that runs **`vercel-python-setup`**, so a plain **`npm install`** in `kiosk/` is enough (no `pip` on the system Python).
-
----
-
-You can deploy in **either** layout. Pick one and set **Root Directory** in the Vercel project accordingly.
-
-### Option A — Easiest showcase (Root Directory `./`)
-
-Leave the project root as **`./`** (default when you import the Git repo). **Do not** pick the **Python** framework preset—this app is **Vite (static) + Node serverless**.
-
-1. Vercel reads **`vercel.json`** at the repo root.  
-2. **`installCommand`** is **`npm install && npm run install:kiosk`**; **`kiosk`**’s **`postinstall`** creates **`.vercel-python`** and installs **`requirements.txt`** (no `pip --user`), and root **`npm install`** brings in **`@vercel/node`** for repo-root **`api/*.ts`**.  
-3. **`buildCommand`** is **`npm run vercel-build`**: **`node scripts/run-prefetch.mjs`**, snapshot copy + **`api/resources.snapshot.json`**, then **`npm run build --prefix kiosk`**.  
-4. Static output is **`kiosk/dist`**; API routes are the thin **`api/*.ts`** files that re-export **`kiosk/api/*`**. Chat bundles the snapshot via **`includeFiles`**.  
-5. **Node:** use **20** or **22** (see **`engines`** in **`package.json`**). **Framework preset:** None / Other — not “Python”.
-
-**Local dry-run (same as Vercel build):** `npm run install:vercel` then **`npm run vercel-build`**.
-
-### Option B — Kiosk as root (Root Directory `kiosk`) — set Install to `npm install` only
-
-Vercel should use **`kiosk/vercel.json`**: **`installCommand`:** **`npm install`** ( **`postinstall`** runs **Python** setup), **`buildCommand`:** **`node ./scripts/vercel-build-data.mjs && npm run build`**. If you set **Install** to the old `pip install --user` string in the dashboard, the deploy **will** fail; clear that override (see the **critical** steps at the top of this section).
-
-### Shared: API routes and env
-
-| Route | Purpose |
-|--------|---------|
-| `POST /api/boston-chat` | Grounded Claude chat |
-| `POST /api/deepgram/transcribe` | Speech-to-text |
-| `POST /api/deepgram/speak` | TTS (Markdown stripped server-side) |
-| `GET /api/mbta/stops?...` | MBTA v3 **stops** proxy (set **`MBTA_API_KEY`** in Vercel for reliability) |
-| `GET /api/mbta/routes?...` | MBTA v3 **routes** proxy (e.g. **`filter[stop]=`** to list bus and rail lines at a stop) |
-
-**Vercel environment variables (project settings):**
-
-- **`ANTHROPIC_API_KEY`** (required for chat)  
-- **`ANTHROPIC_MODEL`** (optional)  
-- **`MBTA_API_KEY`** (recommended)  
-- **`DEEPGRAM_API_KEY`** / **`DEEPGRAM_TTS_MODEL`** (optional, voice)  
-
-If the Hugging Face dataset is **private**, add whatever **`fetch_resources.py`** expects (e.g. **`HF_TOKEN`**) in Vercel **Environment Variables** so the build can pull `data/resources.json`.
-
-**`externally-managed-environment` / `pip install --user` errors:** never install HF deps onto the system Python. This repo uses **`node scripts/vercel-python-setup.mjs`** during Vercel **install** to create **`.vercel-python`** and run **`pip install -r requirements.txt` only inside that venv**. **`npm run prefetch`** uses **`node scripts/run-prefetch.mjs`** (venv if present, else **`python3`**).
-
-**Vercel still runs `pip install --user`:** your project likely has a **custom Install Command** in the dashboard that overrides `vercel.json`. Open **Project → Settings → Build & Development Settings** and clear **Install Command** (and **Build Command** if overridden) so **Root Directory** + **`vercel.json`** control the build.
-
-**Security / polish included:** response security headers in `vercel.json`, SPA **`rewrites`** in both root and `kiosk/vercel.json` (client routes, `/api/*` unchanged), chat function **maxDuration** 60s, React **error boundary** for client crashes, shared **`bostonApiHandlers`** so dev and prod use the same chat logic.
-
-**MCP server** is still a **separate Node process** (`npm run mcp`); it is not hosted on Vercel by this config.
+**Check that the app is really using the Hub data**  
+After `npm run prefetch`, the script prints a line like `Wrote .../data/resources.json (N resources)`. The file is **gitignored**; the map, chat, and list all read the same file in dev. To change data, **update the dataset** on Hugging Face and run **prefetch** (and redeploy for production).
 
 ---
 
 ## Demo
 
-1. Run **`npm run prefetch`** then **`npm run dev:kiosk`**.  
-2. Open the map, pick a category, or use search.  
-3. Open **Help chat** and try:  
-   - “Where can I get food near me?”  
-   - “Tell me about BAGLY” (should find **`fam-bagly`** if that row exists in your generated JSON).  
-4. Use **Play last reply** (needs `DEEPGRAM_API_KEY`) to hear TTS without Markdown noise.  
+### Run locally (quick path)
 
-**Screenshots / video:** add your own; **Loom:** `<insert link here>`.
+1. Complete **Getting started** (including `prefetch` and `dev:kiosk`).  
+2. **Pan/zoom** the map; pick a **category**; **search** for a program.  
+3. Open **Help** and try, for example: *“Where can I get food near me?”* or a **specific program name** that exists in your JSON (e.g. *“Tell me about BAGLY”* if `fam-bagly` is in the snapshot).  
+4. Optionally enable **Deepgram** in `.env` and use **mic** / **play last reply**.  
+5. Scroll to **MBTA** after moving the map—**stops and routes** update from the **map center**.
 
----
+**Video (optional for reviewers)**  
+Add a short walkthrough (e.g. Loom) link here: `https://` *(replace with your recording).*
 
-## Testing / error handling
+### Screenshots (from this build)
 
-- **Vague prompts** → system prompt steers toward safe next steps and 311/911 boundaries.  
-- **Missing `ANTHROPIC_API_KEY`** → `/api/boston-chat` returns **503** with a clear JSON error.  
-- **Invalid chat body** → **400**.  
-- **HF fetch failure** → prefetch exits non-zero; `npm run build` fails until the dataset is reachable.  
-- **Name not in Hub revision** → chat cannot cite it; update the Hub dataset.  
-- **Keyword expansion** ignores very short tokens and a **stopword** list to avoid matching half the directory on words like “the”.
+**1) Hugging Face — `drixo/resources-boston` (source of truth)**  
+![Hugging Face dataset viewer for drixo/resources-boston](img/huggingface-resources.png)  
+The public dataset in **JSON** (e.g. `id`, `type`, `name`, `location`, `address`, `hours`). CityBridge does not edit the Hub in-app; **prefetch** materializes this into `data/resources.json` for the **map, list, and chat**.
 
----
+**2) Kiosk — map, topics, list**  
+![CityBridge Boston map and resource list](img/maps.png)  
+Vite + React + Leaflet: **categories**, **search**, **pins**, and **cards** from the same `resources` table. The map does not auto-fly on category/search changes (kiosk-friendly).
 
-## Future improvements / stretch goals
+**3) Help chat — grounded assistant**  
+![CityBridge Boston Help chat](img/aichat.png)  
+**Claude** with **grounded** instructions. Multiple UI languages. Retrieval expands the **snapshot** from the user’s words so programs can be found **by name** even off the first screen of results.
 
-- Optional **embeddings** for semantic search when keyword match is not enough  
-- **Shelter availability** when a trustworthy feed exists  
-- **Offline** bundle for flaky kiosk Wi‑Fi  
-
----
-
-## Link to deployed app
-
-**Production:** [https://city-bridge-boston.vercel.app/](https://city-bridge-boston.vercel.app/)
+**4) MBTA — nearby stops, modes, and routes**  
+![MBTA nearby stops, modes, and routes in CityBridge Boston](img/routes.png)  
+**Stops and lines** near the **map center** (MBTA **V3** API, proxied). **Civic program** data is still from **Hugging Face**; MBTA is for **how to get there**.
 
 ---
 
-## License / data
+## Testing / error handling (recommended)
 
-Not legal advice. Always confirm hours and eligibility with each organization. Immigration: see `data/resources-meta.json` disclaimer.
+| Scenario | Behavior |
+|----------|----------|
+| **Vague or broad questions** | System prompt nudges toward **concrete** next steps and **311 / 911** boundaries where appropriate. |
+| **No `ANTHROPIC_API_KEY` on the server** | `503` with a **clear** JSON error from `/api/boston-chat`. |
+| **Malformed request body** | `400` from the chat route. |
+| **Hugging Face / prefetch failed** | Non-zero exit; `npm run build` fails until the dataset is **reachable** (or **HF_TOKEN** set for private data). |
+| **Program not in the Hub / snapshot** | The model is instructed **not to invent** it; update the **dataset** or help the user refine the question. |
+| **Noisy tokens** | Very short tokens and a **stopword** list reduce matching half the table on words like “the.” |
+| **Client render errors** | A React **error boundary** avoids a blank screen for uncaught client failures. |
+| **MBTA rate limits** | **Optional** `MBTA_API_KEY` on Vercel; stops/routes are best-effort if the network or API is down. |
+
+---
+
+## Future improvements / stretch goals (optional)
+
+- **Semantic / embedding search** when keyword match is not enough.  
+- **Live shelter availability** when a **trusted, permitted** API exists.  
+- **Offline-first** or **PWA** packaging for unstable kiosk Wi‑Fi.  
+- Deeper **accessibility** (screen reader, contrast themes) for public terminals.
+
+---
+
+## Public application (optional)
+
+**Production web app**  
+[https://city-bridge-boston.vercel.app/](https://city-bridge-boston.vercel.app/)
+
+Chat, voice, and high MBTA rate limits need **env vars** set in the Vercel project: see **`.env.example`** and the **Architecture** section above. **No API keys** are in this repository; use the hosting provider’s **secret** settings.
+
+---
+
+## Acknowledgments & third-party data
+
+This project is **original** work, built on **open** libraries and **documented** APIs:
+
+| Area | Third party |
+|------|-------------|
+| **Data** | [Hugging Face](https://huggingface.co/datasets/drixo/resources-boston) dataset; City of Boston–style and nonprofit fields as represented in the Hub revision you pull. |
+| **LLM** | [Anthropic](https://www.anthropic.com/) Claude via the **Messages API** (key never committed). |
+| **Voice (optional)** | [Deepgram](https://deepgram.com/) (keys via env). |
+| **Transit** | [MBTA V3 API](https://www.mbta.com/developers) (public; optional `MBTA_API_KEY` for rate limits). |
+| **Runtime / hosting** | [Vercel](https://vercel.com/) for the static + serverless deploy; [Node.js](https://nodejs.org/) **20+**. |
+| **Maps** | [Leaflet](https://leafletjs.com/) and [OpenStreetMap](https://www.openstreetmap.org/) tiles (see in-app attributions). |
+| **MCP** | [Model Context Protocol](https://modelcontextprotocol.io/) and [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) for the `server/` tools. |
+| **Python** | `datasets` / `huggingface-hub` in `requirements.txt` for the fetch script. |
+
+**Credentials**  
+Do not commit **live** API keys. Use **`.env`** locally and **Vercel environment variables** in production. This repo’s **`.env.example`** uses **empty** placeholders only.
+
+**Data & legal**  
+The app is **not** legal or medical advice. Users should **call ahead**; immigration language is **supplemented** by in-repo `data/resources-meta.json` where applicable.
+
+---
+
+## Submission & review note (Klaviyo AI Builder–style checklists)
+
+By submitting a README and optional video, you should ensure: **no live secrets in git**; **third-party** services listed above; **original** project; **no employer confidential** or proprietary code; and content appropriate for a **hiring** context. The **full** program terms, privacy, and IP conditions are provided in the **official** application you sign—**read and follow** those documents. This section is a **convenience checklist** only, not a replacement for program terms.
+
+---
+
+## License / data (disclaimer)
+
+Not legal advice. Always **confirm** hours, eligibility, and **immigration** rules with a qualified professional or the organization directly. See `data/resources-meta.json` for the **immigration**-related disclaimer text shown in the app.
