@@ -22,6 +22,7 @@
     },
     "api/deepgram/transcribe.ts": { "maxDuration": 60 },
     "api/deepgram/speak.ts": { "maxDuration": 45 },
-    "api/mbta/stops.ts": { "maxDuration": 25 }
+    "api/mbta/stops.ts": { "maxDuration": 25 },
+    "api/mbta/routes.ts": { "maxDuration": 25 }
   }
 }
