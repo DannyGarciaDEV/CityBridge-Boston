@@ -10,7 +10,7 @@ Kiosk web app + MCP server that help people find Greater Boston civic resources 
 
 #### 1. Hugging Face — `drixo/resources-boston`
 
-![Hugging Face dataset viewer for drixo/resources-boston](img/hugginface%20resources.png)
+![Hugging Face dataset viewer for drixo/resources-boston](img/huggingface-resources.png)
 
 **What it is in the app:** the **versioned, public source** for the directory ([`drixo/resources-boston`](https://huggingface.co/datasets/drixo/resources-boston) on the Hub). The viewer shows the **JSON** `train` split: columns such as **`id`**, **`type`** (e.g. immigration, food, shelter), **`name`**, **`location`** (lat/long for map pins), **`address`**, **`hours`**, and other fields your revision includes. **CityBridge** does not edit this in the UI; **`scripts/fetch_resources.py`** pulls it at build (or on **`npm run prefetch`**) into **`data/resources.json`**, which the **map, list, and Help chat** all read. Change the data on Hugging Face → redeploy or prefetch → the kiosk reflects the new rows. Local legal/disclaimer text still lives in **`data/resources-meta.json`**.
 
