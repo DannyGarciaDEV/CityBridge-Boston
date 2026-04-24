@@ -2,6 +2,7 @@
 
 **Repository folder:** `mcp-boss`  
 **Public name in the UI:** CityBridge Boston  
+**Live site:** [https://city-bridge-boston.vercel.app/](https://city-bridge-boston.vercel.app/)
 
 Kiosk web app + MCP server that help people find Greater Boston civic resources (food, shelter, health, benefits, family, immigration, 311). The **resource table** is pulled from **Hugging Face** at build time; disclaimers ship in-repo in `data/resources-meta.json`.
 
@@ -209,9 +210,9 @@ If the Hugging Face dataset is **private**, add whatever **`fetch_resources.py`*
 
 ---
 
-## Link to deployed app (optional)
+## Link to deployed app
 
-Replace with your real URL when live, e.g. `https://your-app.vercel.app`.
+**Production:** [https://city-bridge-boston.vercel.app/](https://city-bridge-boston.vercel.app/)
 
 ---
 
