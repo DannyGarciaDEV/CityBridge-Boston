@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import type { IncomingMessage } from "node:http";
 import { buffer } from "node:stream/consumers";
-import { handleDeepgramTranscribePost } from "../bostonApiHandlers";
+import { handleDeepgramTranscribePost } from "../bostonApiHandlers.js";
 
 export const config = { maxDuration: 60 };
 

@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { handleDeepgramSpeakPost } from "../bostonApiHandlers";
+import { handleDeepgramSpeakPost } from "../bostonApiHandlers.js";
 
 export const config = { maxDuration: 45 };
 

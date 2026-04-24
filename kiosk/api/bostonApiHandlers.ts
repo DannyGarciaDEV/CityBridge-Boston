@@ -11,7 +11,7 @@ import {
   resolveContextRowsForChat,
   runBostonChat,
   type ChatMessage,
-} from "./bostonAssistant";
+} from "./bostonAssistant.js";
 
 export type BostonApiEnv = Record<string, string | undefined>;
 

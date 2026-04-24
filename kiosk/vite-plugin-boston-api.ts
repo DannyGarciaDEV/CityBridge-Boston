@@ -5,7 +5,7 @@ import {
   handleBostonChatPost,
   handleDeepgramSpeakPost,
   handleDeepgramTranscribePost,
-} from "./api/bostonApiHandlers";
+} from "./api/bostonApiHandlers.js";
 
 function readBody(req: IncomingMessage, limitBytes: number): Promise<Buffer> {
   return new Promise((resolve, reject) => {

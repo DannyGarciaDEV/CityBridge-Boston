@@ -1,1 +1,1 @@
-export { default, config } from "../../kiosk/api/deepgram/speak";
+export { default, config } from "../../kiosk/api/deepgram/speak.js";

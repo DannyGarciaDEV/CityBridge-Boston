@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { handleBostonChatPost } from "./bostonApiHandlers";
+import { handleBostonChatPost } from "./bostonApiHandlers.js";
 
 export const config = { maxDuration: 60 };
 
