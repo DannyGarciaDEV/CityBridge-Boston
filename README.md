@@ -6,6 +6,32 @@
 
 Kiosk web app + MCP server that help people find Greater Boston civic resources (food, shelter, health, benefits, family, immigration, 311). The **resource table** is pulled from **Hugging Face** at build time; disclaimers ship in-repo in `data/resources-meta.json`.
 
+### Visual overview (screenshots)
+
+#### 1. Hugging Face — `drixo/resources-boston`
+
+![Hugging Face dataset viewer for drixo/resources-boston](img/hugginface%20resources.png)
+
+**What it is in the app:** the **versioned, public source** for the directory ([`drixo/resources-boston`](https://huggingface.co/datasets/drixo/resources-boston) on the Hub). The viewer shows the **JSON** `train` split: columns such as **`id`**, **`type`** (e.g. immigration, food, shelter), **`name`**, **`location`** (lat/long for map pins), **`address`**, **`hours`**, and other fields your revision includes. **CityBridge** does not edit this in the UI; **`scripts/fetch_resources.py`** pulls it at build (or on **`npm run prefetch`**) into **`data/resources.json`**, which the **map, list, and Help chat** all read. Change the data on Hugging Face → redeploy or prefetch → the kiosk reflects the new rows. Local legal/disclaimer text still lives in **`data/resources-meta.json`**.
+
+#### 2. Kiosk — map, topics, and list
+
+![CityBridge Boston map and resource list](img/maps.png)
+
+**What it is in the app:** the **Vite + React + Leaflet** home screen. Visitors pick a **category** (shelter, food, health, immigration, family, benefits, 311, etc.), **search** the directory, and see **map markers** and **program cards** from the same `resources` table the chat uses. The map is **kiosk-friendly**: it does not auto-fly to a new area when the topic or search changes, so the user is not yanked away from where they panned the map.
+
+#### 3. Help chat — grounded assistant
+
+![CityBridge Boston Help chat](img/aichat.png)
+
+**What it is in the app:** **Help** (Anthropic **Claude** via the Messages API). Replies are meant to be **grounded in the directory snapshot**—not generic web answers—so phone numbers and programs line up with your Hugging Face data. The UI supports **several languages**, and **retrieval** expands the snapshot using tokens from the user (e.g. a program or neighborhood name) so the model can mention programs even if they are not on the first “page” of the filtered list.
+
+#### 4. MBTA — stops and lines near the map
+
+![MBTA nearby stops, modes, and routes in CityBridge Boston](img/routes.png)
+
+**What it is in the app:** a **separate** panel for **transit** near the **current map center**, powered by the **[MBTA V3 API](https://www.mbta.com/developers)**: **stop/station names**, a **mode** when the API gives it, **route and line names** (bus and rail) per stop when available, and a link to **mbta.com** for trip planning. It helps someone plan **how to get there**; the **civic program directory** still comes from **Hugging Face**, not from the T.
+
 ---
 
 ## Problem statement
@@ -157,7 +183,8 @@ Vercel should use **`kiosk/vercel.json`**: **`installCommand`:** **`npm install`
 | `POST /api/boston-chat` | Grounded Claude chat |
 | `POST /api/deepgram/transcribe` | Speech-to-text |
 | `POST /api/deepgram/speak` | TTS (Markdown stripped server-side) |
-| `GET /api/mbta/stops?...` | MBTA v3 proxy (set **`MBTA_API_KEY`** in Vercel for reliability) |
+| `GET /api/mbta/stops?...` | MBTA v3 **stops** proxy (set **`MBTA_API_KEY`** in Vercel for reliability) |
+| `GET /api/mbta/routes?...` | MBTA v3 **routes** proxy (e.g. **`filter[stop]=`** to list bus and rail lines at a stop) |
 
 **Vercel environment variables (project settings):**
 
